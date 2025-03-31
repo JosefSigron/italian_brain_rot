@@ -1,8 +1,14 @@
-# Sensitive files
+# Large video effect files
+assets/effects/*.mov
+assets/effects/*.mp4
+assets/effects/*.avi
+assets/effects/*.webm
+
+# Secrets
 client_secret.json
 *.json
 
-# Results folder
+# Generated content
 results/
 results/*
 
@@ -41,4 +47,27 @@ ENV/
 
 # OS
 .DS_Store
-Thumbs.db 
+Thumbs.db
+
+# Distribution / packaging
+share/python-wheels/
+MANIFEST
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/ 

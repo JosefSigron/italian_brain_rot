@@ -11,8 +11,8 @@ def generate_response():
         client = OpenAI()
         
         # Define some potential fruits and animals for the prompts
-        fruits = ["apple", "banana", "grape", "pineapple", "strawberry", "watermelon", "kiwi", "mango", "peach"]
-        animals = ["cat", "dog", "elephant", "lion", "tiger", "monkey", "bear", "wolf", "fox", "rabbit"]
+        fruits = ["apple", "banana", "grape", "pineapple", "strawberry", "watermelon", "kiwi", "mango", "peach", "orange", "blueberry", "raspberry", "blackberry", "cherry", "pear", "plum", "pomegranate", "papaya", "coconut", "lime"]
+        animals = ["cat", "dog", "elephant", "lion", "tiger", "monkey", "bear", "wolf", "fox", "rabbit", "giraffe", "zebra", "kangaroo", "panda", "koala", "penguin", "dolphin", "whale", "shark", "eagle", "snake", "frog", "bird", "fish", "butterfly", "spider", "ant", "bee"]
         
         # Randomly select one fruit and one animal
         chosen_fruit = random.choice(fruits)

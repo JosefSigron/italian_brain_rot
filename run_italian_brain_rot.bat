@@ -12,7 +12,6 @@ echo Current directory: %CD%
 echo Running Step 1/5: Text Generation
 echo ===================================================
 call python "%~dp0src\generate_text.py"
-echo Exit code: %ERRORLEVEL%
 if %ERRORLEVEL% neq 0 (
     echo Error in Text Generation step! Exiting...
     pause
@@ -24,7 +23,6 @@ echo.
 echo Running Step 2/5: Image Generation
 echo ===================================================
 call python "%~dp0src\generate_image.py"
-echo Exit code: %ERRORLEVEL%
 if %ERRORLEVEL% neq 0 (
     echo Error in Image Generation step! Exiting...
     pause
@@ -36,7 +34,6 @@ echo.
 echo Running Step 3/5: Speech Generation
 echo ===================================================
 call python "%~dp0src\generate_speech.py"
-echo Exit code: %ERRORLEVEL%
 if %ERRORLEVEL% neq 0 (
     echo Error in Speech Generation step! Exiting...
     pause
@@ -48,7 +45,6 @@ echo.
 echo Running Step 4/5: Video Creation
 echo ===================================================
 call python "%~dp0src\create_video.py"
-echo Exit code: %ERRORLEVEL%
 if %ERRORLEVEL% neq 0 (
     echo Error in Video Creation step! Exiting...
     pause
@@ -72,7 +68,6 @@ if /i "%upload_choice%"=="Y" (
     echo Running Step 5/5: YouTube Upload
     echo ===================================================
     call python "%~dp0src\upload_to_youtube.py"
-    echo Exit code: %ERRORLEVEL%
     if %ERRORLEVEL% neq 0 (
         echo Error in YouTube Upload step!
     ) else (

@@ -22,8 +22,8 @@ def generate_response():
         prompt = f"""I'll give you two words: {chosen_fruit} and {chosen_animal}.
 
 Follow these instructions exactly:
-1. First row: Combine these two words into a creative hybrid name (2 words only).
-2. Second row: Translate this hybrid name into Italian (2 words only).
+1. First row: Show only these 2 words.
+2. Second row: Translate these 2 words into Italian (2 words only).
 3. Write a short story in Italian about this hybrid creature (4-5 sentences).
 4. Each sentence should be on its own line with a blank line after it.
 5. Keep sentences simple (8 words maximum per sentence).

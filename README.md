@@ -100,6 +100,49 @@ All generated files are stored in the `results` directory:
 - `results/speeches/`: Audio narration of the story
 - `results/videos/`: Final videos
 
+## Video Effects
+
+The project includes the ability to add special effects to your videos:
+
+### How to Add Video Effects
+
+1. Download video effect overlays with transparent backgrounds/alpha channels from sources like:
+   - [Videezy](https://www.videezy.com/free-video/fire-overlay) - Search for effects with "alpha channel"
+   - [Pixabay](https://pixabay.com/videos/)
+   - [Pexels](https://www.pexels.com/search/videos/)
+
+2. Place the video effect files in the `assets/effects` directory. The script will automatically detect and use all effect files.
+   - Supported formats: .mp4, .mov, .avi, .webm
+   - For best results, use videos with alpha channels for proper transparency
+
+### Effect Stacking
+
+- Multiple effects will be layered on top of each other in alphabetical order by filename
+- Each subsequent effect will have slightly lower opacity for better blending
+- To control the order of effects, you can prefix filenames with numbers (e.g., "01_fire.mp4", "02_smoke.mp4")
+
+### Built-in Animation Effects
+
+The script also includes built-in animation effects that are applied directly to your image:
+
+#### Grow and Turn Effect
+
+- Similar to PowerPoint's "Grow & Turn" animation
+- The image starts at 50% of its size and rotates 360° while growing to full size
+- The animation lasts for approximately 2 seconds at the beginning of the video
+- This effect is applied by default and works alongside any overlay effects you add
+
+### Recommended Effects
+
+- [Fiery Orange Glowing Burning Ash Particles](https://www.videezy.com/abstract/52551-fiery-orange-glowing-burning-ash-particles) - Fire sparks with transparent alpha channel
+- [Flames Overlay](https://www.videezy.com/abstract/45126-burning-flames-frame-loop) - Burning flames
+
+### Usage Notes
+
+- The script automatically adjusts opacity for each effect, starting at 0.4 and gradually reducing for subsequent effects
+- Effects are scaled to cover the entire frame
+- All effects will loop for the duration of your video
+
 ## How It Works
 
 1. `generate_text.py`:
@@ -120,6 +163,8 @@ All generated files are stored in the `results` directory:
 4. `create_video.py`:
    - Reads the latest image and speech file
    - Creates a video with the image and the audio
+   - Applies any video effects found in the assets/effects directory
+   - Applies the grow & turn animation effect to the image
 
 5. `upload_to_youtube.py`:
    - Uses the YouTube Data API to upload the latest video

@@ -3,9 +3,75 @@ import os
 import sys
 import time
 import traceback
+import requests
+import urllib.request
 from pydub import AudioSegment
 import moviepy.editor as mp
 from PIL import Image
+import numpy as np
+
+def find_effects():
+    """Find all video effect overlays in the effects directory"""
+    print("Finding video effects...")
+    effects_dir = Path(__file__).parent.parent / "assets/effects"
+    effects_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Look for video files with common video extensions
+    video_extensions = ['.mp4', '.mov', '.avi', '.webm']
+    effect_files = []
+    
+    for ext in video_extensions:
+        effect_files.extend(list(effects_dir.glob(f"*{ext}")))
+    
+    if effect_files:
+        print(f"Found {len(effect_files)} effect files:")
+        for effect in effect_files:
+            print(f"- {effect.name}")
+        return effect_files
+    else:
+        print("No effect files found in the effects directory.")
+        print(f"Please add effect videos to: {effects_dir.resolve()}")
+        print("Check the README in the effects directory for instructions.")
+        return []
+
+def download_fire_effect():
+    """Download fire effect overlay if it doesn't exist already"""
+    print("Checking for fire effect overlay...")
+    effects_dir = Path(__file__).parent.parent / "assets/effects"
+    effects_dir.mkdir(parents=True, exist_ok=True)
+    
+    fire_effect_path = effects_dir / "fire_overlay.mp4"
+    
+    if fire_effect_path.exists():
+        print(f"Fire effect already exists at: {fire_effect_path}")
+        return fire_effect_path
+    
+    # URL to a free fire overlay effect with transparent background
+    # Note: In a real scenario, you would need to ensure you have proper licensing for the effect
+    # This is just a placeholder - users should replace with their own fire overlay
+    fire_effect_url = "https://example.com/fire_overlay.mp4"  # Replace with actual URL to fire effect
+    
+    try:
+        print(f"Downloading fire effect from {fire_effect_url}...")
+        # For manual download instructions (since we can't directly download in this example)
+        print("NOTE: Automatic download not available in this script.")
+        print("Please download a fire overlay video with alpha channel/transparent background")
+        print(f"and save it to: {fire_effect_path}")
+        print("You can find free fire overlay videos on sites like:")
+        print("- Videezy.com (search for 'fire overlay with alpha channel')")
+        print("- Pexels.com")
+        print("- Pixabay.com")
+        
+        # Placeholder for downloaded fire effect
+        if not fire_effect_path.exists():
+            print("Using a placeholder path for demonstration purposes.")
+            # Return the path even if it doesn't exist yet - user will need to manually download
+        
+        return fire_effect_path
+    except Exception as e:
+        print(f"Error downloading fire effect: {e}")
+        traceback.print_exc()
+        return None
 
 def find_latest_files():
     print("Finding latest generated files...")
@@ -42,8 +108,44 @@ def find_latest_files():
         traceback.print_exc()
         return None, None
 
-def create_video(image_path, audio_path, output_path):
-    """Create a video with the image and audio (no subtitles)"""
+def apply_grow_and_turn_effect(clip, total_duration, animation_duration=2.0):
+    """Apply a grow and turn effect (similar to PowerPoint) to the clip"""
+    print("Applying grow and turn effect to image...")
+    
+    # Define the animation duration (in seconds)
+    # If animation_duration is too long compared to total_duration, reduce it
+    if animation_duration > total_duration / 3:
+        animation_duration = total_duration / 3
+    
+    # For grow effect, we'll use a resize function that changes with time
+    def grow_effect(t):
+        if t < animation_duration:
+            progress = t / animation_duration  # 0 to 1 during animation
+            scale = 0.5 + 0.5 * progress  # Start at 0.5x size, end at 1x size
+            return scale
+        else:
+            return 1.0  # Full size after animation
+    
+    # For rotation effect, we'll use a rotate function that changes with time
+    def rotate_effect(t):
+        if t < animation_duration:
+            progress = t / animation_duration  # 0 to 1 during animation
+            angle = 360 * progress  # Full rotation during animation
+            return angle
+        else:
+            return 0  # No rotation after animation
+    
+    # Apply custom effects in sequence
+    # First apply dynamic resizing
+    resized_clip = clip.fx(mp.vfx.resize, lambda t: grow_effect(t))
+    
+    # Then apply rotation
+    final_clip = resized_clip.fx(mp.vfx.rotate, lambda t: rotate_effect(t))
+    
+    return final_clip
+
+def create_video(image_path, audio_path, output_path, effect_paths=None, use_grow_and_turn=True):
+    """Create a video with the image, audio, and all video effects"""
     print("Creating video...")
     try:
         # Get audio duration
@@ -70,6 +172,10 @@ def create_video(image_path, audio_path, output_path):
         else:  # Image is taller than target
             image_clip = image_clip.resize(width=target_width)
         
+        # Apply grow and turn effect if requested
+        if use_grow_and_turn:
+            image_clip = apply_grow_and_turn_effect(image_clip, total_duration)
+        
         # Center the image
         image_clip = image_clip.set_position(('center', 'center'))
         
@@ -79,6 +185,48 @@ def create_video(image_path, audio_path, output_path):
         
         # List to hold all clips
         clips = [bg_clip, image_clip]
+        
+        # Add effects if available
+        if effect_paths:
+            for idx, effect_path in enumerate(effect_paths):
+                if effect_path.exists():
+                    try:
+                        print(f"Adding effect from: {effect_path}")
+                        
+                        # Load the effect
+                        effect_clip = mp.VideoFileClip(str(effect_path))
+                        
+                        # Make it loop for the duration of our video if it's shorter
+                        if effect_clip.duration < total_duration:
+                            effect_clip = effect_clip.fx(mp.vfx.loop, duration=total_duration)
+                        else:
+                            # Trim if it's longer than our video
+                            effect_clip = effect_clip.subclip(0, total_duration)
+                        
+                        # Scale to cover the entire frame
+                        effect_clip = effect_clip.resize(height=target_height)
+                        if effect_clip.w < target_width:
+                            effect_clip = effect_clip.resize(width=target_width)
+                        
+                        # Center the effect
+                        effect_clip = effect_clip.set_position(('center', 'center'))
+                        
+                        # Use a blending mode suitable for overlays
+                        # Adjust opacity based on the effect number - later effects are slightly more transparent
+                        # This helps when layering multiple effects
+                        base_opacity = 0.4
+                        opacity_reduction = 0.05 * idx  # Reduce opacity slightly for each additional effect
+                        final_opacity = max(0.2, base_opacity - opacity_reduction)  # Don't go below 0.2
+                        
+                        effect_clip = effect_clip.set_opacity(final_opacity)
+                        
+                        # Add the effect clip on top of the other clips
+                        clips.append(effect_clip)
+                        
+                        print(f"Effect '{effect_path.name}' added successfully with opacity {final_opacity:.2f}")
+                    except Exception as e:
+                        print(f"Error adding effect {effect_path}: {e}. Skipping this effect.")
+                        traceback.print_exc()
             
         # Combine all clips
         video = mp.CompositeVideoClip(clips, size=(target_width, target_height))
@@ -121,15 +269,31 @@ if __name__ == "__main__":
             print("Missing required files. Exiting.")
             sys.exit(1)
         
+        print("\n" + "="*50)
+        print("STEP 2: FINDING VIDEO EFFECTS")
+        print("="*50)
+        effect_paths = find_effects()
+        
+        # If no effects found, check for fire effect as fallback
+        if not effect_paths:
+            print("No effects found. Checking for fire effect...")
+            fire_effect_path = download_fire_effect()
+            if fire_effect_path and fire_effect_path.exists():
+                effect_paths = [fire_effect_path]
+            
         # Create output video path
         video_files = list(output_dir.glob("video_*.mp4"))
         next_number = len(video_files) + 1 if video_files else 1
         output_path = output_dir / f"video_{next_number}.mp4"
         
+        # Ask if grow and turn effect should be used
+        use_grow_and_turn = True  # Default to using the effect
+        
         print("\n" + "="*50)
-        print("STEP 2: CREATING VIDEO")
+        print("STEP 3: CREATING VIDEO WITH EFFECTS")
         print("="*50)
-        video_path = create_video(image_file, speech_file, output_path)
+        print("Applying grow and turn effect to image: Yes")
+        video_path = create_video(image_file, speech_file, output_path, effect_paths, use_grow_and_turn)
         
         if not video_path:
             print("Failed to create video. Exiting.")
@@ -139,6 +303,7 @@ if __name__ == "__main__":
         print("VIDEO CREATION COMPLETE!")
         print("="*50)
         print(f"Video saved to: {video_path}")
+        print(f"Number of effects applied: {len(effect_paths)} overlay(s) + grow and turn effect")
         print("="*50 + "\n")
         
         # Ensure console output is fully displayed before exiting

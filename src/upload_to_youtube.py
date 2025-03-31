@@ -67,6 +67,19 @@ def get_authenticated_service():
     # the Google Cloud Console at https://cloud.google.com/console.
     CLIENT_SECRETS_FILE = "client_secret.json"
     
+    # Check if file exists in current directory
+    if not Path(CLIENT_SECRETS_FILE).exists():
+        # Try to find it in the project root directory
+        root_secrets_file = Path(__file__).parent / CLIENT_SECRETS_FILE
+        if root_secrets_file.exists():
+            CLIENT_SECRETS_FILE = str(root_secrets_file)
+        else:
+            print(f"Error: {CLIENT_SECRETS_FILE} not found in either the current directory or project root.")
+            print(f"Expected locations:")
+            print(f"1. {Path().absolute() / CLIENT_SECRETS_FILE}")
+            print(f"2. {root_secrets_file.absolute()}")
+            raise FileNotFoundError(f"Could not find {CLIENT_SECRETS_FILE}. Please place it in the project root directory.")
+    
     # This OAuth 2.0 access scope allows an application to upload files to the
     # authenticated user's YouTube channel, but doesn't allow other types of access.
     SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]

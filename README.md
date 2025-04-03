@@ -180,9 +180,6 @@ The script also includes built-in animation effects that are applied directly to
   - Check that you have enabled the YouTube Data API v3
   - Ensure you have completed the OAuth2 authentication process
 
-## License
-
-This project is for educational and entertainment purposes.
 
 ## Acknowledgments
 

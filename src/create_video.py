@@ -154,11 +154,11 @@ def create_video(image_path, audio_path, output_path, effect_paths=None, use_gro
         
         print(f"Audio duration: {total_duration:.2f} seconds")
         
-        # Load and resize the image
+        # Load the image
         img = Image.open(image_path)
-        w, h = img.size
+        img_w, img_h = img.size
         
-        # Use portrait orientation for better mobile viewing
+        # Target dimensions for the video (portrait orientation)
         target_width = 1080
         target_height = 1920
         
@@ -166,17 +166,26 @@ def create_video(image_path, audio_path, output_path, effect_paths=None, use_gro
         image_clip = (mp.ImageClip(str(image_path))
                       .set_duration(total_duration))
         
-        # Resize while maintaining aspect ratio
-        if w/h > target_width/target_height:  # Image is wider than target
-            image_clip = image_clip.resize(height=target_height)
-        else:  # Image is taller than target
-            image_clip = image_clip.resize(width=target_width)
+        # Calculate scaling to fit the image within the target dimensions
+        # while maintaining aspect ratio and adding black bars where needed
+        width_ratio = target_width / img_w
+        height_ratio = target_height / img_h
+        
+        # Use the smaller ratio to ensure the image fits completely
+        scale_factor = min(width_ratio, height_ratio)
+        
+        # Calculate new dimensions
+        new_width = int(img_w * scale_factor)
+        new_height = int(img_h * scale_factor)
+        
+        # Resize the image while maintaining aspect ratio
+        image_clip = image_clip.resize(width=new_width, height=new_height)
         
         # Apply grow and turn effect if requested
         if use_grow_and_turn:
             image_clip = apply_grow_and_turn_effect(image_clip, total_duration)
         
-        # Center the image
+        # Center the image on the black background
         image_clip = image_clip.set_position(('center', 'center'))
         
         # Create black background
@@ -246,6 +255,20 @@ def create_video(image_path, audio_path, output_path, effect_paths=None, use_gro
             audio_bitrate='192k',
             threads=4
         )
+        
+        # Properly close all clips to avoid FFMPEG errors
+        video.close()
+        audio_clip.close()
+        image_clip.close()
+        bg_clip.close()
+        
+        # Close any effect clips
+        if effect_paths:
+            for clip in clips[2:]:  # Skip bg_clip and image_clip which are already closed
+                try:
+                    clip.close()
+                except:
+                    pass
         
         print(f"Video created successfully: {output_path}")
         return output_path

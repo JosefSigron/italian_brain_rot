@@ -81,14 +81,8 @@ def save_image(image_url, output_dir="../results/images"):
         if response.status_code == 200:
             with open(image_file_path, "wb") as f:
                 f.write(response.content)
-            
-            # Also save as character_reference.png for potential use with ComfyUI
-            character_ref_path = output_dir_path / "character_reference.png"
-            with open(character_ref_path, "wb") as f:
-                f.write(response.content)
                 
             print(f"Image saved to: {image_file_path}")
-            print(f"Character reference saved to: {character_ref_path}")
             return image_file_path
         else:
             print(f"Failed to download image. Status code: {response.status_code}")

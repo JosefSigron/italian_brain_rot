@@ -29,18 +29,20 @@ def generate_image(text):
         client = OpenAI()
         
         # Split the hybrid name into its components
-        # Assuming format like "Apple Cat" (where Apple is fruit, Cat is animal)
+        # Assuming format like "Airplane Cat" (where Airplane is object, Cat is animal)
         words = text.split()
         if len(words) >= 2:
-            fruit = words[0]
+            object_name = words[0]
             animal = words[1]
         else:
             # Fallback if we don't have proper word split
-            fruit = text
+            object_name = text
             animal = text
         
         # Create an enhanced prompt for DALL-E using the requested format
-        prompt = f"""Create an image of a {fruit} with a {animal} head.
+        prompt = f"""Create an image of a {object_name} with a {animal} head.
+        The image would look unrealistic.
+        The background should be of a beautiful landscape.
 """
         
         response = client.images.generate(
@@ -49,6 +51,7 @@ def generate_image(text):
             size="1024x1024",
             quality="standard",
             n=1,
+            style="vivid",
         )
         
         image_url = response.data[0].url

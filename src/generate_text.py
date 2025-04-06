@@ -10,16 +10,16 @@ def generate_response():
     try:
         client = OpenAI()
         
-        # Define some potential fruits and animals for the prompts
-        fruits = ["apple", "banana", "grape", "pineapple", "strawberry", "watermelon", "kiwi", "mango", "peach", "orange", "blueberry", "raspberry", "blackberry", "cherry", "pear", "plum", "pomegranate", "papaya", "coconut", "lime"]
+        # Define some potential objects and animals for the prompts
+        objects = ["airplane", "cactus", "needle", "laptop", "bicycle", "umbrella", "telescope", "microphone", "robot", "chair", "clock", "lamp", "camera", "book", "backpack", "cup", "piano", "candle", "vase", "pillow", "skateboard", "hammer", "paintbrush", "bell", "crown", "snowman", "apple", "banana", "grape", "pineapple", "strawberry", "watermelon", "kiwi", "mango", "peach", "orange", "blueberry", "raspberry"]
         animals = ["cat", "dog", "elephant", "lion", "tiger", "monkey", "bear", "wolf", "fox", "rabbit", "giraffe", "zebra", "kangaroo", "panda", "koala", "penguin", "dolphin", "whale", "shark", "eagle", "snake", "frog", "bird", "fish", "butterfly", "spider", "ant", "bee"]
         
-        # Randomly select one fruit and one animal
-        chosen_fruit = random.choice(fruits)
+        # Randomly select one object and one animal
+        chosen_object = random.choice(objects)
         chosen_animal = random.choice(animals)
         
         # Create the prompt for GPT-4o
-        prompt = f"""I'll give you two words: {chosen_fruit} and {chosen_animal}.
+        prompt = f"""I'll give you two words: {chosen_object} and {chosen_animal}.
 
 Follow these instructions exactly:
 1. First row: Show only these 2 words.

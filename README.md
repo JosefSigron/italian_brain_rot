@@ -37,7 +37,7 @@ This project generates quirky videos featuring a fruit-animal hybrid character w
    
    For more information on how to set up your API visit: [OpenAI API](https://platform.openai.com/docs/libraries)
 
-4. Set up YouTube API credentials:
+4. Set up YouTube API credentials (If you are not planning on uploading to youtube, you may skip this step):
    1. Go to the [Google Cloud Console](https://console.cloud.google.com/)
    2. Create a new project or select an existing one
    3. Enable the YouTube Data API v3 for your project

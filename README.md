@@ -118,7 +118,7 @@ The project includes the ability to add special effects to your videos:
 ### Effect Stacking
 
 - Multiple effects will be layered on top of each other in alphabetical order by filename
-- Each subsequent effect will have slightly lower opacity for better blending
+- Each effect has a default opacity value of 0.2
 - To control the order of effects, you can prefix filenames with numbers (e.g., "01_fire.mp4", "02_smoke.mp4")
 
 ### Built-in Animation Effects

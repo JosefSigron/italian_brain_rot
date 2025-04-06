@@ -221,18 +221,15 @@ def create_video(image_path, audio_path, output_path, effect_paths=None, use_gro
                         effect_clip = effect_clip.set_position(('center', 'center'))
                         
                         # Use a blending mode suitable for overlays
-                        # Adjust opacity based on the effect number - later effects are slightly more transparent
-                        # This helps when layering multiple effects
-                        base_opacity = 0.4
-                        opacity_reduction = 0.05 * idx  # Reduce opacity slightly for each additional effect
-                        final_opacity = max(0.2, base_opacity - opacity_reduction)  # Don't go below 0.2
+                        # Set the same opacity for all effects
+                        effect_opacity = 0.2  # Fixed opacity value for all effects
                         
-                        effect_clip = effect_clip.set_opacity(final_opacity)
+                        effect_clip = effect_clip.set_opacity(effect_opacity)
                         
                         # Add the effect clip on top of the other clips
                         clips.append(effect_clip)
                         
-                        print(f"Effect '{effect_path.name}' added successfully with opacity {final_opacity:.2f}")
+                        print(f"Effect '{effect_path.name}' added successfully with opacity {effect_opacity:.2f}")
                     except Exception as e:
                         print(f"Error adding effect {effect_path}: {e}. Skipping this effect.")
                         traceback.print_exc()

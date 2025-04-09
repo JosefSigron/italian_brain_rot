@@ -10,6 +10,8 @@ import moviepy.editor as mp
 from PIL import Image
 import numpy as np
 
+#TODO: fix the brightness of the video.
+
 def find_effects():
     """Find all video effect overlays in the effects directory"""
     print("Finding video effects...")

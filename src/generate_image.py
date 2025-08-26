@@ -49,7 +49,7 @@ def generate_image(text):
         result = client.images.generate(
             model="gpt-image-1",
             prompt=prompt,
-            size="1080x1920",
+            size="1024x1536",
             quality="high"
         )
         

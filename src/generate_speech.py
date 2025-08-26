@@ -1,8 +1,10 @@
 from pathlib import Path
-from openai import OpenAI
+import requests
+import json
 import sys
 import time
 import traceback
+import os
 
 def read_transcript(output_dir="../results/transcripts"):
     print("Reading transcript file...")
@@ -30,11 +32,14 @@ def read_transcript(output_dir="../results/transcripts"):
         
         for line in lines:
             if line_count >= skip_lines:
-                italian_story_lines.append(line)
-            if line.strip():  # Only count non-empty lines
+                # Only add non-empty lines to avoid TTS pauses
+                if line.strip():
+                    italian_story_lines.append(line.strip())
+            if line.strip(): # Only count non-empty lines
                 line_count += 1
         
-        italian_story = '\n'.join(italian_story_lines)
+        # Join sentences with spaces instead of newlines to avoid TTS pauses
+        italian_story = ' '.join(italian_story_lines)
         print(f"Extracted Italian story text ({len(italian_story_lines)} lines)")
         
         return italian_story
@@ -43,10 +48,18 @@ def read_transcript(output_dir="../results/transcripts"):
         traceback.print_exc()
         return None
 
-def text_to_speech(text, output_dir="../results/speeches", voice="ash"):
-    print("Converting text to speech...")
+def text_to_speech(text, output_dir="../results/speeches", voice_id="pNInz6obpgDQGcFmaJgB"):
+    print("Converting text to speech using ElevenLabs...")
     try:
-        client = OpenAI()
+        # Get ElevenLabs API key from environment variable
+        api_key = os.getenv("ELEVENLABS_API_KEY")
+        if not api_key:
+            print("Error: ELEVENLABS_API_KEY environment variable not set.")
+            print("Please set your ElevenLabs API key:")
+            print("On Windows: set ELEVENLABS_API_KEY=your_api_key_here")
+            print("On Unix/Mac: export ELEVENLABS_API_KEY=your_api_key_here")
+            return None
+        
         output_dir_path = Path(__file__).parent / output_dir
         output_dir_path.mkdir(parents=True, exist_ok=True)  # Ensure the directory exists
 
@@ -55,23 +68,78 @@ def text_to_speech(text, output_dir="../results/speeches", voice="ash"):
         next_number = len(existing_files) + 1 if existing_files else 1
         speech_file_path = output_dir_path / f"speech_{next_number}.mp3"
 
-        # Use Italian voice model if available, otherwise fallback to default
-        response = client.audio.speech.create(
-            model="tts-1",
-            voice=voice,
-            input=text,
-        )
+        # ElevenLabs API endpoint
+        url = f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}"
         
-        # Use the new method to stream the response content
-        with open(speech_file_path, 'wb') as f:
-            f.write(response.content)
+        # Headers for the API request
+        headers = {
+            "Accept": "audio/mpeg",
+            "Content-Type": "application/json",
+            "xi-api-key": api_key
+        }
         
-        print(f"Speech file saved to: {speech_file_path}")
-        return speech_file_path
+        # Request payload
+        payload = {
+            "text": text,
+            "model_id": "eleven_multilingual_v2",  # Use multilingual model for Italian
+            "voice_settings": {
+                "speed": 1.2,  # Slightly faster speech
+                "stability": 0.5,  # Lower stability for more dynamic/excited speech
+                "similarity_boost": 0.8,  # Slightly higher to maintain voice character
+                "style": 0.9,  # High style for excited/emotional delivery
+                "use_speaker_boost": True
+            }
+        }
+        
+        print("Sending request to ElevenLabs API...")
+        response = requests.post(url, json=payload, headers=headers)
+        
+        if response.status_code == 200:
+            # Save the audio file
+            with open(speech_file_path, 'wb') as f:
+                f.write(response.content)
+            
+            print(f"Speech file saved to: {speech_file_path}")
+            return speech_file_path
+        else:
+            print(f"Error from ElevenLabs API: {response.status_code}")
+            print(f"Response: {response.text}")
+            return None
+            
     except Exception as e:
         print(f"Error converting text to speech: {e}")
         traceback.print_exc()
         return None
+
+def list_available_voices():
+    """List available voices from ElevenLabs"""
+    try:
+        api_key = os.getenv("ELEVENLABS_API_KEY")
+        if not api_key:
+            print("Error: ELEVENLABS_API_KEY environment variable not set.")
+            return
+        
+        url = "https://api.elevenlabs.io/v1/voices"
+        headers = {
+            "xi-api-key": api_key
+        }
+        
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            voices = response.json()
+            print("\nAvailable voices:")
+            print("=" * 50)
+            for voice in voices["voices"]:
+                print(f"ID: {voice['voice_id']}")
+                print(f"Name: {voice['name']}")
+                print(f"Category: {voice.get('category', 'N/A')}")
+                print(f"Description: {voice.get('description', 'N/A')}")
+                print("-" * 30)
+        else:
+            print(f"Error fetching voices: {response.status_code}")
+            print(f"Response: {response.text}")
+    except Exception as e:
+        print(f"Error listing voices: {e}")
 
 if __name__ == "__main__":
     try:

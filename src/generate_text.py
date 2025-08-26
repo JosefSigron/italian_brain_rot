@@ -11,8 +11,57 @@ def generate_response():
         client = OpenAI()
         
         # Define some potential objects and animals for the prompts
-        objects = ["airplane", "cactus", "needle", "laptop", "bicycle", "umbrella", "telescope", "microphone", "robot", "chair", "clock", "lamp", "camera", "book", "backpack", "cup", "piano", "candle", "vase", "pillow", "skateboard", "hammer", "paintbrush", "bell", "crown", "snowman", "apple", "banana", "grape", "pineapple", "strawberry", "watermelon", "kiwi", "mango", "peach", "orange", "blueberry", "raspberry"]
-        animals = ["cat", "dog", "elephant", "lion", "tiger", "monkey", "bear", "wolf", "fox", "rabbit", "giraffe", "zebra", "kangaroo", "panda", "koala", "penguin", "dolphin", "whale", "shark", "eagle", "snake", "frog", "bird", "fish", "butterfly", "spider", "ant", "bee"]
+        objects = [
+            # Technology & Electronics
+            "airplane", "laptop", "robot", "camera", "smartphone", "tablet", "headphones", "microphone", "speaker", "printer", "keyboard", "mouse", "monitor", "drone", "satellite", "rocket", "submarine", "telescope", "microscope", "calculator", "watch", "clock", "radio", "television", "projector", "scanner", "router", "modem", "antenna", "battery", "charger",
+            
+            # Household Items
+            "chair", "table", "bed", "sofa", "lamp", "mirror", "vase", "pillow", "blanket", "curtain", "carpet", "painting", "frame", "shelf", "cabinet", "drawer", "closet", "door", "window", "stairs", "elevator", "escalator", "fence", "gate", "mailbox", "garden", "fountain", "statue", "bench", "trashcan", "recycling bin",
+            
+            # Tools & Equipment
+            "hammer", "screwdriver", "wrench", "pliers", "saw", "drill", "nail", "screw", "bolt", "nut", "tape", "glue", "rope", "chain", "lock", "key", "ladder", "scaffold", "crane", "bulldozer", "excavator", "tractor", "truck", "car", "motorcycle", "bicycle", "skateboard", "rollerblades", "skis", "snowboard", "surfboard",
+            
+            # Kitchen & Food Items
+            "cup", "plate", "bowl", "fork", "spoon", "knife", "pot", "pan", "kettle", "toaster", "blender", "mixer", "oven", "refrigerator", "microwave", "dishwasher", "sink", "faucet", "stove", "grill", "barbecue", "cooler", "thermos", "lunchbox", "picnic basket", "wine glass", "beer bottle", "coffee maker", "tea pot", "salt shaker", "pepper mill",
+            
+            # Art & Creative Items
+            "paintbrush", "paint", "canvas", "easel", "palette", "sculpture", "pottery", "jewelry", "necklace", "ring", "bracelet", "earrings", "crown", "tiara", "mask", "costume", "wig", "makeup", "perfume", "cologne", "soap", "shampoo", "toothbrush", "towel", "umbrella", "parasol", "flag", "banner", "balloon", "kite", "pinwheel",
+            
+            # Nature & Outdoor Items
+            "cactus", "flower", "tree", "bush", "grass", "rock", "stone", "crystal", "gem", "diamond", "pearl", "shell", "coral", "mushroom", "leaf", "branch", "root", "seed", "sprout", "vine", "moss", "lichen", "algae", "seaweed", "sand", "soil", "clay", "mud", "snow", "ice", "rainbow",
+            
+            # Food & Fruits
+            "apple", "banana", "grape", "pineapple", "strawberry", "watermelon", "kiwi", "mango", "peach", "orange", "blueberry", "raspberry", "blackberry", "cherry", "lemon", "lime", "coconut", "avocado", "tomato", "carrot", "potato", "onion", "garlic", "pepper", "cucumber", "lettuce", "spinach", "broccoli", "cauliflower", "corn", "peas",
+            
+            # Sports & Recreation
+            "ball", "bat", "racket", "club", "stick", "puck", "disc", "frisbee", "hula hoop", "jump rope", "trampoline", "swing", "slide", "seesaw", "merry-go-round", "ferris wheel", "roller coaster", "bumper car", "arcade game", "puzzle", "board game", "card game", "dice", "spinner", "marble", "yo-yo", "kaleidoscope", "telescope", "binoculars", "compass", "map"
+        ]
+        
+        animals = [
+            # Domestic Animals
+            "cat", "dog", "hamster", "guinea pig", "rabbit", "ferret", "bird", "parrot", "canary", "finch", "fish", "goldfish", "tropical fish", "turtle", "tortoise", "lizard", "snake", "gecko", "chameleon", "hermit crab", "mouse", "rat", "gerbil", "chinchilla", "hedgehog", "sugar glider", "pot-bellied pig", "miniature horse", "alpaca", "llama", "goat",
+            
+            # Farm Animals
+            "cow", "horse", "pig", "sheep", "goat", "chicken", "duck", "turkey", "goose", "rooster", "donkey", "mule", "ox", "buffalo", "yak", "camel", "llama", "alpaca", "rabbit", "guinea pig", "hamster", "mouse", "rat", "gerbil", "chinchilla", "hedgehog", "sugar glider", "ferret", "skunk", "raccoon", "opossum",
+            
+            # Wild Mammals
+            "elephant", "lion", "tiger", "leopard", "cheetah", "jaguar", "panther", "cougar", "lynx", "bobcat", "bear", "grizzly bear", "polar bear", "black bear", "panda bear", "koala", "kangaroo", "wallaby", "wombat", "platypus", "echidna", "monkey", "gorilla", "chimpanzee", "orangutan", "gibbon", "lemur", "sloth", "anteater", "armadillo", "pangolin",
+            
+            # Marine Animals
+            "dolphin", "whale", "shark", "orca", "seal", "sea lion", "walrus", "otter", "beaver", "muskrat", "platypus", "duck-billed platypus", "sea turtle", "turtle", "tortoise", "crocodile", "alligator", "caiman", "gharial", "frog", "toad", "salamander", "newt", "axolotl", "fish", "goldfish", "tropical fish", "clownfish", "angelfish", "betta fish", "guppy",
+            
+            # Birds
+            "eagle", "hawk", "falcon", "owl", "vulture", "condor", "albatross", "seagull", "penguin", "ostrich", "emu", "cassowary", "kiwi", "flamingo", "peacock", "pheasant", "quail", "partridge", "grouse", "turkey", "chicken", "duck", "goose", "swan", "heron", "egret", "stork", "crane", "ibis", "spoonbill", "pelican",
+            
+            # Insects & Arachnids
+            "butterfly", "moth", "bee", "wasp", "hornet", "ant", "termite", "beetle", "ladybug", "firefly", "dragonfly", "damselfly", "grasshopper", "cricket", "cicada", "aphid", "spider", "scorpion", "centipede", "millipede", "caterpillar", "silkworm", "maggot", "larva", "pupa", "chrysalis", "cocoon", "web", "honeycomb", "anthill", "beehive",
+            
+            # Reptiles & Amphibians
+            "snake", "python", "boa", "cobra", "viper", "rattlesnake", "copperhead", "cottonmouth", "coral snake", "sea snake", "lizard", "gecko", "chameleon", "iguana", "monitor lizard", "komodo dragon", "bearded dragon", "anole", "skink", "turtle", "tortoise", "sea turtle", "box turtle", "painted turtle", "snapping turtle", "frog", "toad", "tree frog", "poison dart frog", "bullfrog", "leopard frog",
+            
+            # Mythical & Fantasy
+            "dragon", "unicorn", "phoenix", "griffin", "mermaid", "centaur", "minotaur", "pegasus", "hippogriff", "basilisk", "kraken", "leviathan", "sphinx", "chimera", "hydra", "cerberus", "cyclops", "troll", "ogre", "giant", "dwarf", "elf", "fairy", "pixie", "sprite", "nymph", "dryad", "naga", "yeti", "bigfoot", "loch ness monster"
+        ]
         
         # Randomly select one object and one animal
         chosen_object = random.choice(objects)
@@ -22,9 +71,9 @@ def generate_response():
         prompt = f"""I'll give you two words: {chosen_object} and {chosen_animal}.
 
 Follow these instructions exactly:
-1. First row: Show only these 2 words.
-2. Second row: Translate these 2 words into Italian (2 words only).
-3. Write a short story in Italian about this hybrid creature (4-5 sentences).
+1. First row: Show only these 2 words
+2. Second row: Create a funny and catchy name for the hybrid creature.
+3. Third row: Write a short story in Italian about this hybrid creature (4-5 sentences).
 4. Each sentence should be on its own line with a blank line after it.
 5. Keep sentences simple (8 words maximum per sentence).
 """

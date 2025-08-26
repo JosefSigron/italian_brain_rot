@@ -3,6 +3,7 @@ from openai import OpenAI
 import sys
 import time
 import traceback
+import base64
 
 def read_first_line(file_path="../results/transcripts/first_line_transcript.txt"):
     print("Reading first line from transcript...")
@@ -24,7 +25,7 @@ def read_first_line(file_path="../results/transcripts/first_line_transcript.txt"
         return None
 
 def generate_image(text):
-    print(f"Generating image from DALL-E 3 for: {text}...")
+    print(f"Generating image from gpt-image-1 for: {text}...")
     try:
         client = OpenAI()
         
@@ -45,29 +46,25 @@ def generate_image(text):
         The background should be of a beautiful landscape.
 """
         
-        response = client.images.generate(
-            model="dall-e-3",
+        result = client.images.generate(
+            model="gpt-image-1",
             prompt=prompt,
-            size="1024x1024",
-            quality="standard",
-            n=1,
-            style="vivid",
+            size="1080x1920",
+            quality="high"
         )
         
-        image_url = response.data[0].url
-        print(f"Image generated successfully. URL: {image_url}")
+        image_base64 = result.data[0].b64_json
+        print("Image generated successfully with base64 encoding.")
         
-        return image_url
+        return image_base64
     except Exception as e:
         print(f"Error generating image: {e}")
         traceback.print_exc()
         return None
 
-def save_image(image_url, output_dir="../results/images"):
+def save_image(image_base64, output_dir="../results/images"):
     print("Saving image...")
     try:
-        import requests
-        
         # Create the images directory if it doesn't exist
         output_dir_path = Path(__file__).parent / output_dir
         output_dir_path.mkdir(parents=True, exist_ok=True)
@@ -79,17 +76,13 @@ def save_image(image_url, output_dir="../results/images"):
         # Create the new image file path
         image_file_path = output_dir_path / f"image_{next_number}.png"
         
-        # Download and save the image
-        response = requests.get(image_url)
-        if response.status_code == 200:
-            with open(image_file_path, "wb") as f:
-                f.write(response.content)
+        # Decode base64 and save the image
+        image_bytes = base64.b64decode(image_base64)
+        with open(image_file_path, "wb") as f:
+            f.write(image_bytes)
                 
-            print(f"Image saved to: {image_file_path}")
-            return image_file_path
-        else:
-            print(f"Failed to download image. Status code: {response.status_code}")
-            return None
+        print(f"Image saved to: {image_file_path}")
+        return image_file_path
     except Exception as e:
         print(f"Error saving image: {e}")
         traceback.print_exc()
@@ -109,16 +102,16 @@ if __name__ == "__main__":
         print("\n" + "="*50)
         print("STEP 2: GENERATING IMAGE")
         print("="*50)
-        image_url = generate_image(first_line)
+        image_base64 = generate_image(first_line)
         
-        if image_url is None:
+        if image_base64 is None:
             print("Failed to generate image. Exiting.")
             sys.exit(1)
         
         print("\n" + "="*50)
         print("STEP 3: SAVING IMAGE")
         print("="*50)
-        image_file = save_image(image_url)
+        image_file = save_image(image_base64)
         
         if image_file is None:
             print("Failed to save image. Exiting.")
